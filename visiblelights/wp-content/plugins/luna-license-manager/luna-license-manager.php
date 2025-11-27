@@ -74,3 +74,4 @@
         }
         
         return $body['choices'][0]['message']['content'];
+}
