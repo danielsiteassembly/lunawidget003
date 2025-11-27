@@ -1,4 +1,4 @@
-        <?php
+<?php
 /**
  * Plugin Name: Luna License Manager (Clean)
  * Description: Manages Luna Licenses and VL Client Users - Clean version without conflicting REST API endpoints
