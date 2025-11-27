@@ -1,0 +1,574 @@
+{
+  "site": {
+    "url": "https://demo.visiblelight.ai",
+    "title": "Demo Site - Visible Light",
+    "status": "online"
+  },
+  "wordpress": {
+    "version": "6.4.2",
+    "theme": "Twenty Twenty-Four",
+    "theme_active": true,
+    "wp_version": "6.4.2"
+  },
+  "security": {
+    "tls": {
+      "status": "active",
+      "version": "TLS 1.3",
+      "issuer": "W1E",
+      "valid_from": "2024-01-15 00:00:00",
+      "valid_to": "2025-04-15 23:59:59",
+      "host": "demo.visiblelight.ai"
+    },
+    "ssl": {
+      "status": "active",
+      "version": "SSL 1.3",
+      "issuer": "Let's Encrypt",
+      "valid_from": "2024-01-15 00:00:00",
+      "valid_to": "2025-04-15 23:59:59",
+      "host": "demo.visiblelight.ai"
+    },
+    "waf": {
+      "provider": "Cloudflare",
+      "last_audit": "2024-12-15"
+    },
+    "ids": {
+      "provider": "Wordfence",
+      "last_scan": "2024-12-20 10:30:00",
+      "result": "Clean",
+      "schedule": "Daily"
+    },
+    "auth": {
+      "mfa": "Enabled",
+      "password_policy": "Strong",
+      "session_timeout": "30 minutes",
+      "sso_providers": "Google, Microsoft"
+    },
+    "domain": {
+      "domain": "demo.visiblelight.ai",
+      "registrar": "Namecheap",
+      "registered_on": "2023-01-15",
+      "renewal_date": "2025-01-15",
+      "auto_renew": "Enabled"
+    }
+  },
+  "cloudflare": {
+    "connected": true,
+    "zone_count": 3,
+    "zones": [
+      {
+        "name": "demo.visiblelight.ai",
+        "status": "active",
+        "plan": "Pro"
+      }
+    ]
+  },
+  "aws_s3": {
+    "connected": true,
+    "bucket_count": 2,
+    "object_count": 15420,
+    "storage_used": "2.5 GB",
+    "last_sync": "2024-12-20 09:15:00",
+    "buckets": [
+      {
+        "name": "demo-backups",
+        "object_count": 8500,
+        "size": "1.8 GB"
+      },
+      {
+        "name": "demo-media",
+        "object_count": 6920,
+        "size": "700 MB"
+      }
+    ]
+  },
+  "liquidweb": {
+    "connected": true,
+    "assets_count": 5,
+    "last_sync": "2024-12-20 08:00:00",
+    "assets": [
+      {
+        "name": "Demo Server 1",
+        "type": "Linux Cloud Dedicated",
+        "status": "active"
+      },
+      {
+        "name": "Demo DNS Zone",
+        "type": "DNS",
+        "status": "active"
+      }
+    ]
+  },
+  "updates": {
+    "core": 0,
+    "plugins": 2,
+    "themes": 1
+  },
+  "plugins": [
+    {
+      "name": "Luna Widget",
+      "version": "1.0.0",
+      "active": true
+    },
+    {
+      "name": "Yoast SEO",
+      "version": "21.9",
+      "active": true
+    }
+  ],
+  "users": {
+    "total": 12,
+    "administrators": 2,
+    "editors": 3,
+    "authors": 4,
+    "subscribers": 3
+  },
+  "analytics": {
+    "ga4": {
+      "connected": true,
+      "active_users": 1250,
+      "new_users": 320
+    }
+  },
+  "content": {
+    "posts": 45,
+    "pages": 12,
+    "media": 234
+  },
+  "lighthouse": {
+    "connected": true,
+    "url": "https://demo.visiblelight.ai",
+    "last_analysis": "2024-12-20 14:30:00",
+    "analysis_count": 24,
+    "latest": {
+      "performance": 87,
+      "accessibility": 92,
+      "best_practices": 89,
+      "seo": 95,
+      "overall": 90.75,
+      "timestamp": "2024-12-20 14:30:00",
+      "url": "https://demo.visiblelight.ai"
+    },
+    "history": [
+      {
+        "performance": 85,
+        "accessibility": 91,
+        "best_practices": 88,
+        "seo": 94,
+        "overall": 89.5,
+        "timestamp": "2024-12-19 14:30:00"
+      },
+      {
+        "performance": 83,
+        "accessibility": 90,
+        "best_practices": 87,
+        "seo": 93,
+        "overall": 88.25,
+        "timestamp": "2024-12-18 14:30:00"
+      },
+      {
+        "performance": 88,
+        "accessibility": 93,
+        "best_practices": 90,
+        "seo": 96,
+        "overall": 91.75,
+        "timestamp": "2024-12-17 14:30:00"
+      }
+    ],
+    "metrics": {
+      "first_contentful_paint": 1.2,
+      "largest_contentful_paint": 2.4,
+      "total_blocking_time": 150,
+      "cumulative_layout_shift": 0.05,
+      "speed_index": 2.8,
+      "time_to_interactive": 3.1
+    },
+    "opportunities": [
+      {
+        "id": "render-blocking-resources",
+        "title": "Eliminate render-blocking resources",
+        "description": "Reduce render-blocking resources to improve page load speed",
+        "impact": "high",
+        "effort": "medium",
+        "estimated_savings": "1.2s"
+      },
+      {
+        "id": "unused-css",
+        "title": "Remove unused CSS",
+        "description": "Remove unused CSS rules to reduce file size",
+        "impact": "medium",
+        "effort": "low",
+        "estimated_savings": "0.8s"
+      },
+      {
+        "id": "image-optimization",
+        "title": "Optimize images",
+        "description": "Serve images in next-gen formats and properly size them",
+        "impact": "high",
+        "effort": "low",
+        "estimated_savings": "1.5s"
+      }
+    ]
+  },
+  "competitive": {
+    "connected": true,
+    "competitors": [
+      {
+        "url": "https://competitor1.example.com",
+        "name": "Competitor One",
+        "added_date": "2024-11-15",
+        "last_analysis": "2024-12-20 10:00:00",
+        "analysis_count": 12
+      },
+      {
+        "url": "https://competitor2.example.com",
+        "name": "Competitor Two",
+        "added_date": "2024-11-20",
+        "last_analysis": "2024-12-20 10:15:00",
+        "analysis_count": 8
+      },
+      {
+        "url": "https://competitor3.example.com",
+        "name": "Competitor Three",
+        "added_date": "2024-12-01",
+        "last_analysis": "2024-12-20 10:30:00",
+        "analysis_count": 5
+      }
+    ],
+    "reports": [
+      {
+        "id": "competitor_1_20241220",
+        "competitor_url": "https://competitor1.example.com",
+        "competitor_name": "Competitor One",
+        "analysis_date": "2024-12-20 10:00:00",
+        "lighthouse": {
+          "performance": 78,
+          "accessibility": 85,
+          "best_practices": 82,
+          "seo": 88,
+          "overall": 83.25
+        },
+        "keywords": {
+          "total": 1245,
+          "top_keywords": [
+            {
+              "keyword": "web hosting",
+              "position": 3,
+              "search_volume": 12000
+            },
+            {
+              "keyword": "cloud services",
+              "position": 7,
+              "search_volume": 8500
+            },
+            {
+              "keyword": "managed hosting",
+              "position": 12,
+              "search_volume": 6200
+            }
+          ]
+        },
+        "meta_description": "Leading provider of web hosting and cloud services with 24/7 support",
+        "title_tag": "Competitor One - Web Hosting & Cloud Services",
+        "backlinks": 15420,
+        "domain_authority": 68,
+        "page_speed": "2.8s",
+        "mobile_friendly": true
+      },
+      {
+        "id": "competitor_2_20241220",
+        "competitor_url": "https://competitor2.example.com",
+        "competitor_name": "Competitor Two",
+        "analysis_date": "2024-12-20 10:15:00",
+        "lighthouse": {
+          "performance": 82,
+          "accessibility": 88,
+          "best_practices": 85,
+          "seo": 91,
+          "overall": 86.5
+        },
+        "keywords": {
+          "total": 980,
+          "top_keywords": [
+            {
+              "keyword": "dedicated servers",
+              "position": 5,
+              "search_volume": 9500
+            },
+            {
+              "keyword": "VPS hosting",
+              "position": 9,
+              "search_volume": 7200
+            },
+            {
+              "keyword": "enterprise hosting",
+              "position": 15,
+              "search_volume": 4800
+            }
+          ]
+        },
+        "meta_description": "Enterprise-grade dedicated servers and VPS hosting solutions",
+        "title_tag": "Competitor Two - Dedicated Servers & VPS Hosting",
+        "backlinks": 12350,
+        "domain_authority": 65,
+        "page_speed": "2.5s",
+        "mobile_friendly": true
+      },
+      {
+        "id": "competitor_3_20241220",
+        "competitor_url": "https://competitor3.example.com",
+        "competitor_name": "Competitor Three",
+        "analysis_date": "2024-12-20 10:30:00",
+        "lighthouse": {
+          "performance": 75,
+          "accessibility": 82,
+          "best_practices": 80,
+          "seo": 85,
+          "overall": 80.5
+        },
+        "keywords": {
+          "total": 756,
+          "top_keywords": [
+            {
+              "keyword": "shared hosting",
+              "position": 8,
+              "search_volume": 11000
+            },
+            {
+              "keyword": "website builder",
+              "position": 11,
+              "search_volume": 6800
+            },
+            {
+              "keyword": "domain registration",
+              "position": 18,
+              "search_volume": 5200
+            }
+          ]
+        },
+        "meta_description": "Affordable shared hosting and website builder tools for small businesses",
+        "title_tag": "Competitor Three - Shared Hosting & Website Builder",
+        "backlinks": 9870,
+        "domain_authority": 58,
+        "page_speed": "3.2s",
+        "mobile_friendly": true
+      },
+      {
+        "id": "competitor_1_20241219",
+        "competitor_url": "https://competitor1.example.com",
+        "competitor_name": "Competitor One",
+        "analysis_date": "2024-12-19 10:00:00",
+        "lighthouse": {
+          "performance": 76,
+          "accessibility": 84,
+          "best_practices": 81,
+          "seo": 87,
+          "overall": 82
+        },
+        "keywords": {
+          "total": 1238,
+          "top_keywords": [
+            {
+              "keyword": "web hosting",
+              "position": 4,
+              "search_volume": 12000
+            },
+            {
+              "keyword": "cloud services",
+              "position": 8,
+              "search_volume": 8500
+            }
+          ]
+        },
+        "meta_description": "Leading provider of web hosting and cloud services with 24/7 support",
+        "title_tag": "Competitor One - Web Hosting & Cloud Services",
+        "backlinks": 15380,
+        "domain_authority": 68,
+        "page_speed": "2.9s",
+        "mobile_friendly": true
+      }
+    ],
+    "summary": {
+      "total_competitors": 3,
+      "total_reports": 20,
+      "last_analysis": "2024-12-20 10:30:00",
+      "average_lighthouse_score": 83.42,
+      "top_performing_competitor": "Competitor Two",
+      "trending_keywords": [
+        "web hosting",
+        "cloud services",
+        "dedicated servers",
+        "VPS hosting",
+        "managed hosting"
+      ]
+    }
+  },
+  "compliance": {
+    "gdpr": {
+      "status": "compliant",
+      "last_audit": "2024-12-15 09:00:00",
+      "next_audit": "2025-03-15",
+      "score": 92,
+      "requirements": {
+        "privacy_policy": {
+          "status": "compliant",
+          "last_updated": "2024-11-20",
+          "url": "https://demo.visiblelight.ai/privacy-policy"
+        },
+        "cookie_consent": {
+          "status": "compliant",
+          "implementation": "CookieYes",
+          "last_updated": "2024-12-01"
+        },
+        "data_processing_agreements": {
+          "status": "compliant",
+          "count": 5,
+          "last_updated": "2024-11-15"
+        },
+        "right_to_erasure": {
+          "status": "compliant",
+          "process_documented": true,
+          "last_reviewed": "2024-12-01"
+        },
+        "data_breach_procedures": {
+          "status": "compliant",
+          "documented": true,
+          "last_tested": "2024-11-30"
+        }
+      },
+      "issues": [
+        {
+          "severity": "low",
+          "issue": "Cookie consent banner could be more prominent",
+          "recommendation": "Consider making the cookie consent banner more visible on mobile devices"
+        }
+      ]
+    },
+    "accessibility": {
+      "status": "wcag_aa_compliant",
+      "wcag_level": "AA",
+      "last_audit": "2024-12-10 14:00:00",
+      "next_audit": "2025-03-10",
+      "score": 88,
+      "requirements": {
+        "alt_text": {
+          "status": "compliant",
+          "coverage": 95,
+          "missing_alt": 12
+        },
+        "keyboard_navigation": {
+          "status": "compliant",
+          "all_interactive_elements": true
+        },
+        "color_contrast": {
+          "status": "compliant",
+          "ratio": 4.8,
+          "minimum_required": 4.5
+        },
+        "aria_labels": {
+          "status": "compliant",
+          "coverage": 92
+        },
+        "screen_reader_compatibility": {
+          "status": "compliant",
+          "tested_with": ["NVDA", "JAWS", "VoiceOver"]
+        }
+      },
+      "issues": [
+        {
+          "severity": "medium",
+          "issue": "12 images missing alt text",
+          "recommendation": "Add descriptive alt text to all images for better screen reader support"
+        },
+        {
+          "severity": "low",
+          "issue": "Some form labels could be more descriptive",
+          "recommendation": "Enhance form label descriptions for better accessibility"
+        }
+      ]
+    },
+    "security": {
+      "status": "compliant",
+      "last_audit": "2024-12-18 11:00:00",
+      "next_audit": "2025-03-18",
+      "score": 94,
+      "standards": {
+        "owasp_top_10": {
+          "status": "compliant",
+          "last_reviewed": "2024-12-18",
+          "vulnerabilities_found": 0
+        },
+        "pci_dss": {
+          "status": "not_applicable",
+          "reason": "No payment card data processed"
+        },
+        "hipaa": {
+          "status": "not_applicable",
+          "reason": "No healthcare data processed"
+        },
+        "iso_27001": {
+          "status": "partially_compliant",
+          "compliance_level": 75,
+          "last_reviewed": "2024-11-30"
+        }
+      },
+      "certifications": [
+        {
+          "name": "SOC 2 Type II",
+          "status": "certified",
+          "expiry_date": "2025-06-30",
+          "certifying_body": "AICPA"
+        },
+        {
+          "name": "ISO 27001",
+          "status": "in_progress",
+          "expected_completion": "2025-04-30"
+        }
+      ],
+      "issues": [
+        {
+          "severity": "low",
+          "issue": "Some security headers could be enhanced",
+          "recommendation": "Add additional security headers like X-Content-Type-Options and X-Frame-Options"
+        }
+      ]
+    },
+    "performance": {
+      "status": "meets_standards",
+      "last_audit": "2024-12-20 14:30:00",
+      "score": 87,
+      "core_web_vitals": {
+        "lcp": {
+          "value": 2.4,
+          "status": "good",
+          "threshold": 2.5
+        },
+        "fid": {
+          "value": 50,
+          "status": "good",
+          "threshold": 100
+        },
+        "cls": {
+          "value": 0.05,
+          "status": "good",
+          "threshold": 0.1
+        }
+      },
+      "standards_met": [
+        "Google PageSpeed Insights",
+        "Web Vitals",
+        "Lighthouse Performance"
+      ]
+    },
+    "overall": {
+      "compliance_score": 90.25,
+      "status": "compliant",
+      "last_full_audit": "2024-12-18",
+      "next_full_audit": "2025-03-18",
+      "certifications": 1,
+      "pending_certifications": 1,
+      "critical_issues": 0,
+      "medium_issues": 1,
+      "low_issues": 3
+    }
+  }
+}

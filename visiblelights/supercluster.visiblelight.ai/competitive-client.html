@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitive - Visible Light AI</title>
+    <link rel="stylesheet" type="text/css" href="https://supercluster.visiblelight.ai/styles.css" />
+    <style>
+        /* License key specific styles */
+        .license-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .license-value {
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .blurred-text {
+            color: rgba(255, 255, 255, 0.5);
+            filter: blur(3px);
+            font-size: inherit;
+            letter-spacing: 2px;
+        }
+        .copy-license-btn {
+            display: inline-block;
+            vertical-align: middle;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s ease;
+            margin-left: 8px;
+            height: 24px;
+            z-index: 10;
+        }
+        .copy-license-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 1);
+        }
+        .copy-license-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Ensure navigation is clickable */
+        .vl-main-menu {
+            z-index: 1000;
+            position: relative;
+        }
+        .vl-main-menu a {
+            z-index: 1001;
+            position: relative;
+            pointer-events: auto;
+        }
+        .vl-main-menu li {
+            z-index: 1001;
+            position: relative;
+            pointer-events: auto;
+        }
+
+        /* Custom page styles */
+        .vl-client-page {
+            background: #000000;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .vl-client-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 100;
+        }
+
+        .vl-client-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .vl-client-content p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .vl-client-placeholder {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <div
+        id="vlClientRoot"
+        class="vl-supercluster-root vl-client-page"
+        data-login-path="/supercluster-ai-constellation-login/"
+    >
+
+        <!-- Visible Light Supercluster Overlay -->
+        <div class="vl-supercluster-overlay">
+            <!-- Top Left: Logo and Client Info -->
+            <div class="vl-header">
+                <div class="vl-logo">
+                    <img src="https://visiblelight.ai/wp-content/uploads/2025/10/visible-light-icon-logo.svg" alt="Visible Light Icon Logo" />
+                </div>
+                <div class="vl-client-greeting">
+                    <h2>Hello, <span id="clientName">Client</span><span class="dropdown-arrow" id="clientDropdownArrow"><img src="https://visiblelight.ai/wp-content/uploads/2025/08/downarrow.svg" alt="droddown arrow"></span></h2>
+                </div>
+            </div>
+
+            <!-- Main Navigation Menu -->
+            <nav class="vl-main-menu">
+                <ul>
+                    <li>
+                        <a href="https://supercluster.visiblelight.ai/?license=VL-VYAK-9BPQ-NKCC&from=vl-client-login" data-section="supercluster">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/supercluster-loader.svg" alt="Supercluster Icon" /></span>
+                            <span class="label">Supercluster</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="web-infra-client.html" data-section="web-infra">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/web-and-infra-icon.svg" alt="Web & Infra Icon" /></span>
+                            <span class="label">Web & Infra</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="content-client.html" data-section="content">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/content-manegement-and-structure-icon.svg" alt="content icon" /></span>
+                            <span class="label">Content</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="search-intel-client.html" data-section="search-intel">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/supercluster-search-icon-1.svg" alt="search intel icon" /></span>
+                            <span class="label">Search Intel</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reporting-client.html" data-section="reporting">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/supercluster-reporting-icon.svg" alt="reporting icon" /></span>
+                            <span class="label">Reporting</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="marketing-ads-client.html" data-section="marketing-ads">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/web-infra-icon-2.svg" alt="marketing and campaigns icon" /></span>
+                            <span class="label">Marketing & Ads</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="ecommerce-client.html" data-section="ecommerce">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/supercluster-search-icon-1.svg" alt="e-commerce and conversions icon" /></span>
+                            <span class="label">E-Commerce</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="security-compliance-client.html" data-section="security-compliance">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/security-icon.svg" alt="security and compliance icon" /></span>
+                            <span class="label">Security & Compliance</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="cloudops-client.html" data-section="cloudops">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/supercluster-search-icon-1.svg" alt="cloudops icon" /></span>
+                            <span class="label">CloudOps</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="user-identity-client.html" data-section="user-identity">
+                            <span class="icon"><img width="49" height="46" decoding="async" src="https://visiblelight.ai/wp-content/uploads/2025/07/seamless-collaboration-icon.svg" alt="user identity icon" class="wp-image-541" style="aspect-ratio:1.0606060606060606;object-fit:cover;width:35px;height:auto"></span>
+                            <span class="label">User & Identity Layer</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="#" data-section="competitive">
+                            <span class="icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/supercluster-search-icon-1.svg" alt="competitive icon" /></span>
+                            <span class="label">Competitive</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Bottom Left: License Key, Connection Status and Luna Chat -->
+            <div class="vl-bottom-left">
+                <div class="vl-license-key">
+                    <div class="license-label">License Key</div>
+                    <div class="license-container" id="licenseKeyContainer">
+                        <span class="license-value" id="licenseKeyDisplay">Loading...</span>
+                        <button class="copy-license-btn" id="copyLicenseBtn" title="Copy full license key">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="vl-connection-status">
+                    <div class="status-indicator">
+                        <span class="status-icon" id="connectionIcon"><img src="https://visiblelight.ai/wp-content/uploads/2025/10/checkmark.svg" alt="check mark" /></span>
+                    </div>
+                    <div class="status-text">
+                        <p><span class="status-label">Hub Status: </span>
+                        <span class="status-value" id="connectionStatus">Active</span></p>
+                    </div>
+                </div>
+                <div class="vl-luna-chat">
+                    <button class="luna-chat-button" id="lunaChatButton">
+                        <span class="chat-icon"><img src="https://visiblelight.ai/wp-content/uploads/2025/07/luna-headshot.png" alt="Luna AI Profile Photo" /></span>
+                        <span class="chat-text">Explore with Luna</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="vl-controls">
+                <button class="control-btn" id="controlLeft" title="Move Left">
+                    <span class="icon">←</span>
+                </button>
+                <button class="control-btn" id="controlRight" title="Move Right">
+                    <span class="icon">→</span>
+                </button>
+                <button class="control-btn" id="controlZoomIn" title="Zoom In">
+                    <span class="icon">+</span>
+                </button>
+                <button class="control-btn" id="controlZoomOut" title="Zoom Out">
+                    <span class="icon">−</span>
+                </button>
+                <button class="control-btn" id="controlToggleConnections" title="Toggle Connections">
+                    <span class="icon" id="connectionsIcon">👁</span>
+                </button>
+                <button class="control-btn" id="controlSpecial" title="Special Effect">
+                    <span class="icon">✨</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Client Dropdown Lightbox -->
+        <div class="client-dropdown-lightbox" id="clientDropdownLightbox" style="display: none;">
+            <div class="client-dropdown-content">
+                <div class="client-dropdown-item" id="accountSettings">
+                    <span class="dropdown-icon">⚙️</span>
+                    <span class="dropdown-text">Account Settings</span>
+                </div>
+                <div class="client-dropdown-item" id="logoutOption">
+                    <span class="dropdown-icon">🚪</span>
+                    <span class="dropdown-text">Log Out</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout Confirmation Modal -->
+        <div class="logout-modal" id="logoutModal" style="display: none;">
+            <div class="logout-modal-content">
+                <h3>Log Out</h3>
+                <p>Are you sure you want to log out of Visible Light?</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-cancel" id="logoutCancel">No, stay logged in</button>
+                    <button class="logout-confirm" id="logoutConfirm">Yes, log out now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Page Content -->
+        <div class="vl-client-content">
+            <h1>Competitive Intelligence</h1>
+            <p>Market analysis and competitive insights</p>
+            
+            <div class="vl-client-placeholder">
+                <h3>🏆 Competitive Dashboard</h3>
+                <p>This page will display your competitive analysis, market intelligence, competitor tracking, and strategic insights.</p>
+                <p><em>Custom content will be loaded based on your data sources.</em></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // License key handling
+        let licenseKey = null;
+        let constellationData = null;
+        let dataFetchError = null;
+
+        // Extract license key from URL
+        function extractLicenseKey() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const license = urlParams.get('license');
+            if (license) {
+                licenseKey = license;
+                const licenseKeyDisplay = document.getElementById('licenseKeyDisplay');
+                if (licenseKeyDisplay) {
+                    // Show VL- + first 4 characters, then blur the rest
+                    const visiblePart = license.substring(0, 6); // 'VL-XXXX'
+                    const blurredPart = license.substring(6); // rest of the license
+                    licenseKeyDisplay.innerHTML = `${visiblePart}<span class='blurred-text'>${blurredPart}</span>`;
+                }
+                console.log('License key extracted:', license);
+            }
+            return license;
+        }
+
+        // Copy license key functionality
+        function setupLicenseCopy() {
+            const copyBtn = document.getElementById('copyLicenseBtn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                    if (licenseKey) {
+                        navigator.clipboard.writeText(licenseKey).then(() => {
+                            const originalText = copyBtn.innerHTML;
+                            copyBtn.innerHTML = '<span>✓</span>';
+                            setTimeout(() => {
+                                copyBtn.innerHTML = originalText;
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Failed to copy license key:', err);
+                        });
+                    }
+                });
+            }
+        }
+
+        // Fetch constellation data
+        async function fetchConstellationData() {
+            if (!licenseKey) {
+                throw new Error('No license key provided');
+            }
+
+            try {
+                const endpoint = 'https://visiblelight.ai/wp-json/vl-hub/v1/constellation';
+                const url = `${endpoint}?license=${encodeURIComponent(licenseKey)}`;
+                
+                console.log('Fetching constellation data from:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response body:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Constellation data fetched:', data);
+                return data;
+            } catch (error) {
+                console.error('Error fetching constellation data:', error);
+                dataFetchError = error.message;
+                throw error;
+            }
+        }
+
+        // Update client name
+        async function updateClientName() {
+            const clientNameEl = document.getElementById('clientName');
+            if (!clientNameEl) return;
+
+            try {
+                if (constellationData && constellationData.clients && constellationData.clients.length > 0) {
+                    const clientName = constellationData.clients[0].client || 'Client';
+                    clientNameEl.textContent = clientName;
+                    console.log('Client name updated:', clientName);
+                } else {
+                    // Try to get client name from license key
+                    const clientName = getClientNameFromLicense(licenseKey);
+                    clientNameEl.textContent = clientName;
+                }
+            } catch (error) {
+                console.error('Error updating client name:', error);
+                clientNameEl.textContent = 'Client';
+            }
+        }
+
+        // Get client name from license key
+        function getClientNameFromLicense(license) {
+            if (!license) return 'Client';
+            
+            // Extract client name from license key format
+            const parts = license.split('-');
+            if (parts.length >= 2) {
+                return parts[1] || 'Client';
+            }
+            return 'Client';
+        }
+
+        // Setup connection status
+        function setupConnectionStatus() {
+            const connectionIcon = document.getElementById('connectionIcon');
+            const connectionStatus = document.getElementById('connectionStatus');
+            
+            function updateConnectionStatus(isConnected, error = null) {
+                if (isConnected) {
+                    connectionIcon.src = 'https://visiblelight.ai/wp-content/uploads/2025/10/checkmark.svg';
+                    connectionIcon.alt = 'Connected';
+                    connectionIcon.className = 'status-icon';
+                    connectionStatus.textContent = 'Active';
+                } else {
+                    connectionIcon.src = 'https://visiblelight.ai/wp-content/uploads/2025/10/x-close-icon.svg';
+                    connectionIcon.alt = 'Disconnected';
+                    connectionIcon.className = 'status-icon error';
+                    connectionStatus.textContent = error || 'Disconnected';
+                }
+            }
+
+            setInterval(() => {
+                const isConnected = constellationData !== null && !dataFetchError;
+                updateConnectionStatus(isConnected, dataFetchError);
+            }, 1000);
+        }
+
+        // Setup client dropdown functionality
+        function setupClientDropdown() {
+            const dropdownArrow = document.getElementById('clientDropdownArrow');
+            const dropdownLightbox = document.getElementById('clientDropdownLightbox');
+            const accountSettings = document.getElementById('accountSettings');
+            const logoutOption = document.getElementById('logoutOption');
+            const logoutModal = document.getElementById('logoutModal');
+            const logoutCancel = document.getElementById('logoutCancel');
+            const logoutConfirm = document.getElementById('logoutConfirm');
+            
+            let isDropdownOpen = false;
+
+            function toggleDropdown() {
+                isDropdownOpen = !isDropdownOpen;
+                dropdownLightbox.style.display = isDropdownOpen ? 'block' : 'none';
+            }
+
+            function closeDropdown() {
+                isDropdownOpen = false;
+                dropdownLightbox.style.display = 'none';
+            }
+
+            if (dropdownArrow) {
+                dropdownArrow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleDropdown();
+                });
+            }
+
+            if (accountSettings) {
+                accountSettings.addEventListener('click', () => {
+                    closeDropdown();
+                    // Handle account settings
+                    console.log('Account settings clicked');
+                });
+            }
+
+            if (logoutOption) {
+                logoutOption.addEventListener('click', () => {
+                    closeDropdown();
+                    logoutModal.style.display = 'block';
+                });
+            }
+
+            if (logoutCancel) {
+                logoutCancel.addEventListener('click', () => {
+                    logoutModal.style.display = 'none';
+                });
+            }
+
+            if (logoutConfirm) {
+                logoutConfirm.addEventListener('click', () => {
+                    logoutModal.style.display = 'none';
+                    // Redirect to logout
+                    window.location.href = 'https://visiblelight.ai/wp-login.php?action=logout';
+                });
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!dropdownArrow.contains(e.target) && !dropdownLightbox.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+        }
+
+        // Update navigation links with current license key
+        function updateNavigationLinks() {
+            if (!licenseKey) return;
+            
+            const licenseParam = `?license=${licenseKey}&from=vl-client-login`;
+            
+            // Update Supercluster link
+            const superclusterLink = document.querySelector('a[data-section="supercluster"]');
+            if (superclusterLink) {
+                superclusterLink.href = `https://supercluster.visiblelight.ai/${licenseParam}`;
+            }
+            
+            // Update all client page links
+            const clientLinks = [
+                { section: 'web-infra', file: 'web-infra-client.html' },
+                { section: 'content', file: 'content-client.html' },
+                { section: 'search-intel', file: 'search-intel-client.html' },
+                { section: 'reporting', file: 'reporting-client.html' },
+                { section: 'marketing-ads', file: 'marketing-ads-client.html' },
+                { section: 'ecommerce', file: 'ecommerce-client.html' },
+                { section: 'security-compliance', file: 'security-compliance-client.html' },
+                { section: 'cloudops', file: 'cloudops-client.html' },
+                { section: 'user-identity', file: 'user-identity-client.html' },
+                { section: 'competitive', file: 'competitive-client.html' }
+            ];
+            
+            clientLinks.forEach(({ section, file }) => {
+                const link = document.querySelector(`a[data-section="${section}"]`);
+                if (link && section !== 'competitive') { // Don't update current page
+                    link.href = `${file}${licenseParam}`;
+                }
+            });
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Initializing Competitive client page...');
+            
+            // Extract license key
+            extractLicenseKey();
+            
+            // Update navigation links with license key
+            updateNavigationLinks();
+            
+            // Setup functionality
+            setupLicenseCopy();
+            setupConnectionStatus();
+            setupClientDropdown();
+            
+            // Fetch constellation data
+            try {
+                const data = await fetchConstellationData();
+                constellationData = data;
+                await updateClientName();
+            } catch (error) {
+                console.error('Failed to fetch constellation data:', error);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!-- Tutorial Overlay HTML -->
+<div class="tutorial-overlay" id="tutorialOverlay" style="display: none;">
+    <div class="tutorial-backdrop" id="tutorialBackdrop"></div>
+    <div class="tutorial-highlight" id="tutorialHighlight"></div>
+    <div class="tutorial-content" id="tutorialContent">
+        <button class="tutorial-close" id="tutorialClose" title="Close Tutorial">×</button>
+        <div class="tutorial-step-content" id="tutorialStepContent">
+            <!-- Step content will be inserted here -->
+        </div>
+        <div class="tutorial-options" id="tutorialOptions" style="display: none;">
+            <label>
+                <input type="checkbox" id="tutorialNeverShow">
+                <span id="tutorialNeverShowLabel">Never show this tutorial again</span>
+            </label>
+        </div>
+        <div class="tutorial-navigation">
+            <button class="tutorial-btn tutorial-prev" id="tutorialPrev" style="display: none;">Previous</button>
+            <div class="tutorial-progress" id="tutorialProgress"></div>
+            <button class="tutorial-btn tutorial-next" id="tutorialNext">Next</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Tutorial JavaScript - All tutorial-related functions and variables
+(function() {
+    'use strict';
+    
+    // Tutorial steps configuration
+    const tutorialSteps = [
+        {
+            title: 'Welcome to Visible Light',
+            description: 'This is Supercluster - the center of your digital universe. It connects all your cloud services, data streams, and analytics into one intuitive and interactive virtual interface.',
+            targetElement: null, // No specific target, show welcome message
+            position: 'center'
+        },
+        {
+            title: 'Interactive 3D Visualization',
+            description: 'Explore your data universe! Click and drag to rotate, scroll to zoom, and click on any galaxy to see detailed information about that data source.',
+            targetElement: '#vlSuperclusterRoot',
+            position: 'center'
+        },
+        {
+            title: 'Navigation Menu',
+            description: 'Access different sections of your dashboard: Observe, Compose, Report, Automate, and Connect. Each section provides different functionality.',
+            targetElement: '.vl-main-menu',
+            position: 'left'
+        },
+        {
+            title: 'Your License Key',
+            description: 'Your unique Visible Light license key is displayed here. Click the copy button to copy it to your clipboard when needed.',
+            targetElement: '#licenseKeyContainer',
+            position: 'left'
+        },
+        {
+            title: 'Recent Activity',
+            description: 'Stay updated with your latest data stream syncs, new connections, and important events. Click on any activity to view detailed information.',
+            targetElement: '#recentActivityWidget',
+            position: 'right'
+        },
+        {
+            title: 'Control Buttons',
+            description: 'Use these controls to navigate your Supercluster: Move left/right, zoom in/out to explore different views of your data.',
+            targetElement: '.vl-controls',
+            position: 'right'
+        },
+        {
+            title: 'Client Menu',
+            description: 'Click on your name or the dropdown arrow to access account settings, launch tutorial, and logout options.',
+            targetElement: '#clientDropdownArrow',
+            position: 'top-left'
+        },
+        {
+            title: 'You\'re All Set!',
+            description: 'You now know the basics of your Supercluster dashboard. Start exploring your data universe and discover insights across all your connected sources.',
+            targetElement: null,
+            position: 'center'
+        }
+    ];
+
+    // Make variables global so they can be accessed from index.html
+    window.currentTutorialStep = 0;
+    window.tutorialActive = false;
+    window.tutorialUsername = null;
+    window.tutorialSteps = tutorialSteps;
+
+    // Update "Never show again" label with username
+    function updateNeverShowLabel() {
+        const label = document.getElementById('tutorialNeverShowLabel');
+        if (label) {
+            if (window.tutorialUsername) {
+                label.textContent = `Never show this tutorial again for ${window.tutorialUsername}`;
+            } else {
+                label.textContent = 'Never show this tutorial again';
+            }
+        }
+    }
+    window.updateNeverShowLabel = updateNeverShowLabel;
+
+    // Check if user has completed tutorial before
+    async function checkAndShowTutorial() {
+        console.log('=== TUTORIAL CHECK START ===');
+        const licenseKey = window.licenseKey || '';
+        console.log('License key:', licenseKey);
+        
+        // Check localStorage first (faster)
+        const localCompleted = localStorage.getItem('vl-supercluster-tutorial-completed');
+        console.log('LocalStorage tutorial status:', localCompleted);
+        
+        try {
+            // Include license key in request for cookie-less fallback
+            const sessionUrl = new URL('https://visiblelight.ai/wp-json/vl-hub/v1/tutorial-status');
+            if (licenseKey) {
+                sessionUrl.searchParams.set('license', licenseKey);
+            }
+            
+            console.log('Checking tutorial status from server:', sessionUrl.toString());
+            
+            // Check server-side (survives cache/cookie clearing)
+            const response = await fetch(sessionUrl.toString(), {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            console.log('Tutorial status response:', response.status);
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Tutorial status data from server:', data);
+                
+                // Store username for label
+                if (data && data.username) {
+                    window.tutorialUsername = data.username;
+                    console.log('Tutorial username:', window.tutorialUsername);
+                    // Immediately update client greeting with the same username
+                    if (typeof updateClientName === 'function') {
+                        updateClientName();
+                    }
+                }
+                
+                // If user has opted to never show tutorial, don't show it
+                if (data && data.never_show === true) {
+                    console.log('✗ User has opted to never show tutorial - NOT SHOWING');
+                    return;
+                }
+                // If tutorial was completed but not "never show", don't show it
+                if (data && data.completed === true) {
+                    console.log('✗ Tutorial already completed on server - NOT SHOWING');
+                    // Also set in localStorage for faster check next time
+                    localStorage.setItem('vl-supercluster-tutorial-completed', 'true');
+                    return;
+                }
+                
+                // If server says not completed, show tutorial (even if localStorage says completed)
+                console.log('✓ Server says tutorial not completed - WILL SHOW');
+            } else {
+                console.warn('Tutorial status check failed:', response.status);
+                const errorText = await response.text();
+                console.warn('Error response:', errorText);
+                
+                // If server check fails, only trust localStorage if it exists
+                if (localCompleted) {
+                    console.log('✗ Server check failed, but localStorage says completed - NOT SHOWING');
+                    return;
+                }
+                console.log('✓ Server check failed, no localStorage - WILL SHOW');
+            }
+        } catch (error) {
+            console.warn('Could not check tutorial status from server:', error);
+            // If server check fails, only trust localStorage if it exists
+            if (localCompleted) {
+                console.log('✗ Server check failed, but localStorage says completed - NOT SHOWING');
+                return;
+            }
+            console.log('✓ Server check failed, no localStorage - WILL SHOW');
+        }
+
+        // Show tutorial after a short delay to let page load
+        console.log('=== SHOWING TUTORIAL ===');
+        setTimeout(() => {
+            showTutorial();
+        }, 1500);
+    }
+    window.checkAndShowTutorial = checkAndShowTutorial;
+
+    // Show tutorial
+    function showTutorial() {
+        const overlay = document.getElementById('tutorialOverlay');
+        if (!overlay) return;
+        
+        window.tutorialActive = true;
+        overlay.style.display = 'block';
+        window.currentTutorialStep = 0;
+        updateTutorialStep();
+    }
+    window.showTutorial = showTutorial;
+
+    // Save tutorial status to server
+    async function saveTutorialStatus(completed, neverShow) {
+        // Mark tutorial as completed in localStorage
+        if (completed) {
+            localStorage.setItem('vl-supercluster-tutorial-completed', 'true');
+        }
+        
+        // Save to server-side (survives cache/cookie clearing)
+        try {
+            const licenseKey = window.licenseKey || '';
+            // Include license key in request for cookie-less fallback
+            const saveUrl = new URL('https://visiblelight.ai/wp-json/vl-hub/v1/tutorial-status');
+            if (licenseKey) {
+                saveUrl.searchParams.set('license', licenseKey);
+            }
+            
+            const response = await fetch(saveUrl.toString(), {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    completed: completed,
+                    never_show: neverShow
+                }),
+            });
+
+            if (response.ok) {
+                console.log('Tutorial status saved to server');
+                return true;
+            } else {
+                console.warn('Failed to save tutorial status to server');
+                return false;
+            }
+        } catch (error) {
+            console.warn('Error saving tutorial status to server:', error);
+            return false;
+        }
+    }
+    window.saveTutorialStatus = saveTutorialStatus;
+
+    // Hide tutorial
+    async function hideTutorial() {
+        const overlay = document.getElementById('tutorialOverlay');
+        if (!overlay) return;
+        
+        window.tutorialActive = false;
+        overlay.style.display = 'none';
+        clearHighlight();
+        
+        // Check if "never show again" is checked
+        const neverShowCheckbox = document.getElementById('tutorialNeverShow');
+        const neverShow = neverShowCheckbox && neverShowCheckbox.checked;
+        
+        // Save tutorial as completed (only if we reached the end)
+        const isCompleted = window.currentTutorialStep >= tutorialSteps.length - 1;
+        await saveTutorialStatus(isCompleted, neverShow);
+    }
+    window.hideTutorial = hideTutorial;
+
+    // Update tutorial step display
+    function updateTutorialStep() {
+        if (window.currentTutorialStep < 0 || window.currentTutorialStep >= tutorialSteps.length) {
+            hideTutorial();
+            return;
+        }
+
+        const step = tutorialSteps[window.currentTutorialStep];
+        const stepContent = document.getElementById('tutorialStepContent');
+        const prevBtn = document.getElementById('tutorialPrev');
+        const nextBtn = document.getElementById('tutorialNext');
+        const progress = document.getElementById('tutorialProgress');
+
+        if (!stepContent || !prevBtn || !nextBtn || !progress) return;
+
+        // Update content
+        stepContent.innerHTML = `
+            <h3 class="tutorial-title">${step.title}</h3>
+            <p class="tutorial-description">${step.description}</p>
+        `;
+
+        // Update navigation buttons
+        prevBtn.style.display = window.currentTutorialStep === 0 ? 'none' : 'inline-block';
+        nextBtn.textContent = window.currentTutorialStep === tutorialSteps.length - 1 ? 'Get Started' : 'Next';
+
+        // Show "Never show again" option on last step
+        const optionsDiv = document.getElementById('tutorialOptions');
+        if (optionsDiv) {
+            if (window.currentTutorialStep === tutorialSteps.length - 1) {
+                optionsDiv.style.display = 'block';
+                // Update label with username if available
+                updateNeverShowLabel();
+            } else {
+                optionsDiv.style.display = 'none';
+            }
+        }
+
+        // Update progress bar
+        const progressPercent = ((window.currentTutorialStep + 1) / tutorialSteps.length) * 100;
+        progress.style.setProperty('--progress-width', `${progressPercent}%`);
+
+        // Highlight target element if specified
+        if (step.targetElement) {
+            highlightElement(step.targetElement, step.position);
+        } else {
+            clearHighlight();
+        }
+    }
+    window.updateTutorialStep = updateTutorialStep;
+
+    // Highlight a specific element
+    function highlightElement(selector, position) {
+        const element = document.querySelector(selector);
+        if (!element) {
+            clearHighlight();
+            return;
+        }
+
+        const highlight = document.getElementById('tutorialHighlight');
+        const backdrop = document.getElementById('tutorialBackdrop');
+        const content = document.getElementById('tutorialContent');
+
+        if (!highlight || !backdrop || !content) return;
+
+        const rect = element.getBoundingClientRect();
+        const padding = 10;
+
+        // Calculate highlight position and size
+        highlight.style.width = (rect.width + padding * 2) + 'px';
+        highlight.style.height = (rect.height + padding * 2) + 'px';
+        highlight.style.left = (rect.left - padding) + 'px';
+        highlight.style.top = (rect.top - padding) + 'px';
+        highlight.style.display = 'block';
+        highlight.style.borderRadius = '8px';
+
+        // Position tutorial content based on position preference
+        positionContent(content, rect, position);
+    }
+    window.highlightElement = highlightElement;
+
+    // Position tutorial content relative to highlighted element
+    function positionContent(content, rect, position) {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const contentWidth = 400;
+        const contentHeight = 200;
+        const margin = 20;
+
+        let left, top;
+
+        switch (position) {
+            case 'left':
+                left = rect.left - contentWidth - margin;
+                top = rect.top + (rect.height / 2) - (contentHeight / 2);
+                break;
+            case 'right':
+                left = rect.right + margin;
+                top = rect.top + (rect.height / 2) - (contentHeight / 2);
+                break;
+            case 'top':
+                left = rect.left + (rect.width / 2) - (contentWidth / 2);
+                top = rect.top - contentHeight - margin;
+                break;
+            case 'bottom':
+                left = rect.left + (rect.width / 2) - (contentWidth / 2);
+                top = rect.bottom + margin;
+                break;
+            case 'top-left':
+                left = rect.left;
+                top = rect.top - contentHeight - margin;
+                break;
+            case 'center':
+            default:
+                left = (viewportWidth / 2) - (contentWidth / 2);
+                top = (viewportHeight / 2) - (contentHeight / 2);
+                break;
+        }
+
+        // Ensure content stays within viewport
+        left = Math.max(margin, Math.min(left, viewportWidth - contentWidth - margin));
+        top = Math.max(margin, Math.min(top, viewportHeight - contentHeight - margin));
+
+        content.style.left = left + 'px';
+        content.style.top = top + 'px';
+    }
+
+    // Clear highlight
+    function clearHighlight() {
+        const highlight = document.getElementById('tutorialHighlight');
+        if (highlight) {
+            highlight.style.display = 'none';
+        }
+    }
+    window.clearHighlight = clearHighlight;
+
+    // Setup tutorial event listeners - simplified with direct onclick handlers
+    function setupTutorial() {
+        console.log('Setting up tutorial event listeners...');
+        const closeBtn = document.getElementById('tutorialClose');
+        const prevBtn = document.getElementById('tutorialPrev');
+        const nextBtn = document.getElementById('tutorialNext');
+        const backdrop = document.getElementById('tutorialBackdrop');
+
+        console.log('Tutorial elements:', {
+            closeBtn: !!closeBtn,
+            prevBtn: !!prevBtn,
+            nextBtn: !!nextBtn,
+            backdrop: !!backdrop
+        });
+
+        if (!closeBtn || !prevBtn || !nextBtn) {
+            console.error('Tutorial buttons not found!');
+            return;
+        }
+
+        // Close button - direct onclick handler
+        closeBtn.onclick = function(e) {
+            console.log('Tutorial close button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            // Save tutorial as seen (but not completed) when closed early
+            saveTutorialStatus(false, false).catch(err => console.error('Error saving tutorial status:', err));
+            hideTutorial();
+            return false;
+        };
+
+        // Previous button - direct onclick handler
+        prevBtn.onclick = function(e) {
+            console.log('Tutorial previous button clicked, current step:', window.currentTutorialStep);
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            if (window.currentTutorialStep > 0) {
+                window.currentTutorialStep--;
+                console.log('Moving to step:', window.currentTutorialStep);
+                updateTutorialStep();
+            }
+            return false;
+        };
+
+        // Next button - direct onclick handler
+        nextBtn.onclick = function(e) {
+            console.log('Tutorial next button clicked, current step:', window.currentTutorialStep, 'total steps:', tutorialSteps.length);
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            if (window.currentTutorialStep < tutorialSteps.length - 1) {
+                window.currentTutorialStep++;
+                console.log('Moving to step:', window.currentTutorialStep);
+                updateTutorialStep();
+            } else {
+                console.log('Reached last step, hiding tutorial');
+                hideTutorial();
+            }
+            return false;
+        };
+
+        // Close on backdrop click
+        if (backdrop) {
+            backdrop.onclick = function(e) {
+                // Only close if clicking directly on backdrop, not on content
+                if (e.target === backdrop) {
+                    console.log('Tutorial backdrop clicked');
+                    hideTutorial();
+                }
+            };
+        }
+    }
+    window.setupTutorial = setupTutorial;
+
+    // Update tutorial positioning on window resize
+    window.addEventListener('resize', () => {
+        if (window.tutorialActive && window.currentTutorialStep >= 0 && window.currentTutorialStep < tutorialSteps.length) {
+            const step = tutorialSteps[window.currentTutorialStep];
+            if (step.targetElement) {
+                highlightElement(step.targetElement, step.position);
+            }
+        }
+    });
+
+    // Initialize tutorial when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupTutorial);
+    } else {
+        setupTutorial();
+    }
+})();
+</script>
