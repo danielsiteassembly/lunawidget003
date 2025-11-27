@@ -42,3 +42,35 @@
             error_log('[VL Hub] Invalid OpenAI response format for snapshot summary using ' . $model);
 
         return $response_content;
+        // Call OpenAI API
+        $payload = array(
+            'model' => 'gpt-4o',
+        
+        $response = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
+            'timeout' => 60,
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $api_key,
+            ),
+            'body' => wp_json_encode($payload),
+        ));
+        
+        if (is_wp_error($response)) {
+            error_log('[VL Hub] OpenAI request failed for snapshot summary: ' . $response->get_error_message());
+            return null;
+        
+        $status = (int) wp_remote_retrieve_response_code($response);
+        $raw_body = wp_remote_retrieve_body($response);
+        
+        if ($status >= 400) {
+            error_log('[VL Hub] OpenAI HTTP ' . $status . ' for snapshot summary: ' . substr($raw_body, 0, 500));
+            return null;
+        }
+        
+        $body = json_decode($raw_body, true);
+        if (!isset($body['choices'][0]['message']['content'])) {
+            error_log('[VL Hub] Invalid OpenAI response format for snapshot summary');
+            return null;
+        }
+        
+        return $body['choices'][0]['message']['content'];
