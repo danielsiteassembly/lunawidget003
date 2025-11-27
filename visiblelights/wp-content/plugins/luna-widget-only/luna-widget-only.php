@@ -760,41 +760,29 @@ function luna_widget_generate_openai_summary($data, $api_key) {
   $prompt .= "Write in a friendly, Senior WebOps engineer tone - be conversational but professional, data-driven, and actionable. Use specific numbers, health scores, and status indicators from the data.\n\n";
   $prompt .= "Profile Data Summary:\n" . json_encode($profile_data, JSON_PRETTY_PRINT);
   
-  // Call OpenAI API
-  $openai_response = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
-    'timeout' => 30,
-    'headers' => array(
-      'Authorization' => 'Bearer ' . $api_key,
-      'Content-Type' => 'application/json',
-    ),
-    'body' => json_encode(array(
-      'model' => 'gpt-4o-mini',
-      'messages' => array(
-        array(
-          'role' => 'system',
-          'content' => 'You are a helpful assistant that summarizes VL Hub Profile data in a clear, professional manner.',
-        ),
-        array(
-          'role' => 'user',
-          'content' => $prompt,
-        ),
+  // Call OpenAI API with GPT-5.1 primary and GPT-4o fallback
+  $payload = array(
+    'messages' => array(
+      array(
+        'role' => 'system',
+        'content' => 'You are a helpful assistant that summarizes VL Hub Profile data in a clear, professional manner.',
       ),
-      'max_tokens' => 1500,
-      'temperature' => 0.7,
-    )),
-  ));
-  
-  if (is_wp_error($openai_response)) {
-    return 'Failed to generate AI summary: ' . $openai_response->get_error_message();
+      array(
+        'role' => 'user',
+        'content' => $prompt,
+      ),
+    ),
+    'max_tokens' => 1500,
+    'temperature' => 0.7,
+  );
+
+  $summary = luna_widget_request_openai_with_fallback($api_key, $payload, 'GPT-5.1 summary', 60);
+
+  if (is_wp_error($summary)) {
+    return 'Failed to generate AI summary: ' . $summary->get_error_message();
   }
-  
-  $openai_body = json_decode(wp_remote_retrieve_body($openai_response), true);
-  
-  if (isset($openai_body['choices'][0]['message']['content'])) {
-    return trim($openai_body['choices'][0]['message']['content']);
-  }
-  
-  return 'Failed to generate AI summary.';
+
+  return trim((string)$summary);
 }
 
 /**
@@ -2225,7 +2213,99 @@ function luna_widget_get_comprehensive_facts() {
       'connected' => true,
     );
   }
-  
+
+  // Extract analytics data (GA4, Search Console, Lighthouse, Competitors) directly from Hub data
+  $analytics_data = array();
+  $roots = array($hub_data);
+
+  if (isset($hub_data['data']) && is_array($hub_data['data'])) {
+    $roots[] = $hub_data['data'];
+    if (isset($hub_data['data']['client_streams']) && is_array($hub_data['data']['client_streams'])) {
+      $roots[] = $hub_data['data']['client_streams'];
+    }
+  }
+
+  foreach ($roots as $root) {
+    if (!is_array($root)) {
+      continue;
+    }
+
+    foreach ($root as $key => $item) {
+      if (!is_array($item)) {
+        continue;
+      }
+
+      // Google Analytics 4
+      if (!isset($analytics_data['ga4']) && (strpos((string)$key, 'ga4') !== false || isset($item['ga4_metrics']) || isset($item['ga4_property_id']) || (isset($item['name']) && stripos($item['name'], 'Google Analytics') !== false))) {
+        $analytics_data['ga4'] = array(
+          'name' => isset($item['name']) ? $item['name'] : 'Google Analytics 4',
+          'property_id' => isset($item['ga4_property_id']) ? $item['ga4_property_id'] : (isset($item['property_id']) ? $item['property_id'] : ''),
+          'metrics' => isset($item['ga4_metrics']) && is_array($item['ga4_metrics']) ? $item['ga4_metrics'] : array(),
+          'dimensions' => array(
+            'geographic' => isset($item['ga4_geographic']) && is_array($item['ga4_geographic']) ? $item['ga4_geographic'] : array(),
+            'device' => isset($item['ga4_device']) && is_array($item['ga4_device']) ? $item['ga4_device'] : array(),
+            'traffic' => isset($item['ga4_traffic']) && is_array($item['ga4_traffic']) ? $item['ga4_traffic'] : array(),
+            'pages' => isset($item['ga4_pages']) && is_array($item['ga4_pages']) ? $item['ga4_pages'] : array(),
+            'events' => isset($item['ga4_events']) && is_array($item['ga4_events']) ? $item['ga4_events'] : array(),
+          ),
+          'date_range' => isset($item['ga4_date_range']) ? $item['ga4_date_range'] : array(),
+          'last_synced' => isset($item['ga4_last_synced']) ? $item['ga4_last_synced'] : (isset($item['last_updated']) ? $item['last_updated'] : ''),
+        );
+      }
+
+      // Google Search Console
+      if (!isset($analytics_data['search_console']) && (strpos((string)$key, 'search_console') !== false || strpos((string)$key, 'gsc') !== false || isset($item['gsc_data']) || (isset($item['name']) && stripos($item['name'], 'Search Console') !== false))) {
+        $gsc_data = isset($item['gsc_data']) && is_array($item['gsc_data']) ? $item['gsc_data'] : array();
+        $analytics_data['search_console'] = array_merge(
+          $gsc_data,
+          array(
+            'site_url' => isset($item['site_url']) ? $item['site_url'] : (isset($item['url']) ? $item['url'] : ''),
+            'last_sync' => isset($item['last_sync']) ? $item['last_sync'] : (isset($item['last_updated']) ? $item['last_updated'] : ''),
+            'data_points' => isset($item['data_points']) ? $item['data_points'] : (isset($gsc_data['search_queries']) ? count($gsc_data['search_queries']) : 0),
+          )
+        );
+      }
+
+      // Lighthouse reports
+      if (strpos((string)$key, 'lighthouse') !== false || isset($item['report_data']) || (isset($item['name']) && stripos($item['name'], 'Lighthouse') !== false)) {
+        $scores = array();
+        if (isset($item['report_data']['scores']) && is_array($item['report_data']['scores'])) {
+          $scores = $item['report_data']['scores'];
+        } elseif (isset($item['lighthouse_scores']) && is_array($item['lighthouse_scores'])) {
+          $scores = $item['lighthouse_scores'];
+        }
+
+        $analytics_data['lighthouse'][] = array(
+          'url' => isset($item['url']) ? $item['url'] : (isset($item['report_url']) ? $item['report_url'] : ''),
+          'date' => isset($item['last_updated']) ? $item['last_updated'] : (isset($item['generated_at']) ? $item['generated_at'] : ''),
+          'scores' => $scores,
+          'opportunities' => isset($item['report_data']['opportunities']) && is_array($item['report_data']['opportunities']) ? $item['report_data']['opportunities'] : array(),
+        );
+      }
+    }
+  }
+
+  // Competitor analysis from profile data
+  if (!empty($profile_data['competitors'])) {
+    foreach ($profile_data['competitors'] as $competitor) {
+      if (!is_array($competitor)) {
+        continue;
+      }
+
+      $analytics_data['competitor'][] = array(
+        'name' => isset($competitor['name']) ? $competitor['name'] : (isset($competitor['competitor_url']) ? $competitor['competitor_url'] : ''),
+        'url' => isset($competitor['competitor_url']) ? $competitor['competitor_url'] : '',
+        'domain_ranking' => isset($competitor['domain_ranking']) ? $competitor['domain_ranking'] : null,
+        'lighthouse' => isset($competitor['lighthouse']) ? $competitor['lighthouse'] : array(),
+        'public_pages' => isset($competitor['public_pages']) ? $competitor['public_pages'] : null,
+      );
+    }
+  }
+
+  if (!empty($analytics_data)) {
+    $facts['analytics'] = $analytics_data;
+  }
+
   return $facts;
 }
 
@@ -2424,6 +2504,49 @@ function luna_composer_default_prompts() {
 /* ============================================================
  * OPENAI INTEGRATION
  * ============================================================ */
+
+/**
+ * Send an OpenAI chat completion request with GPT-5.1 primary and GPT-4o fallback
+ */
+function luna_widget_request_openai_with_fallback($api_key, $payload, $log_context = 'Luna request', $timeout = 60) {
+  $models = array('gpt-5.1', 'gpt-4o');
+
+  foreach ($models as $index => $model) {
+    $payload['model'] = $model;
+
+    $response = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
+      'timeout' => $timeout,
+      'headers' => array(
+        'Authorization' => 'Bearer ' . $api_key,
+        'Content-Type' => 'application/json',
+      ),
+      'body' => wp_json_encode($payload),
+    ));
+
+    if (is_wp_error($response)) {
+      error_log('[Luna Widget] OpenAI request failed (' . $model . ', ' . $log_context . '): ' . $response->get_error_message());
+      continue;
+    }
+
+    $response_code = wp_remote_retrieve_response_code($response);
+    if ($response_code >= 400) {
+      error_log('[Luna Widget] OpenAI returned HTTP ' . $response_code . ' for model ' . $model . ' (' . $log_context . ')');
+      continue;
+    }
+
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+    if (isset($body['choices'][0]['message']['content'])) {
+      if ($index > 0) {
+        error_log('[Luna Widget] Fallback model ' . $model . ' succeeded for ' . $log_context);
+      }
+      return trim((string)$body['choices'][0]['message']['content']);
+    }
+
+    error_log('[Luna Widget] OpenAI response missing content for model ' . $model . ' (' . $log_context . ')');
+  }
+
+  return new WP_Error('openai_error', 'Failed to get response from OpenAI after trying primary and fallback models.');
+}
 /**
  * Build OpenAI messages with facts using our new extraction method
  */
@@ -3698,31 +3821,13 @@ function luna_call_openai($messages, $api_key, $is_composer = false) {
   // while still maintaining factual accuracy based on available data
   $temperature = $is_composer ? 0.4 : 0.1;
   
-  $response = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
-    'timeout' => 60,
-    'headers' => array(
-      'Authorization' => 'Bearer ' . $api_key,
-      'Content-Type' => 'application/json',
-    ),
-    'body' => json_encode(array(
-      'model' => 'gpt-4o-mini',
-      'messages' => $messages,
-      'temperature' => $temperature,
-      'max_tokens' => 2000,
-    )),
-  ));
-  
-  if (is_wp_error($response)) {
-    return $response;
-  }
-  
-  $body = json_decode(wp_remote_retrieve_body($response), true);
-  
-  if (isset($body['choices'][0]['message']['content'])) {
-    return trim($body['choices'][0]['message']['content']);
-  }
-  
-  return new WP_Error('openai_error', 'Failed to get response from OpenAI');
+  $payload = array(
+    'messages' => $messages,
+    'temperature' => $temperature,
+    'max_tokens' => 2000,
+  );
+
+  return luna_widget_request_openai_with_fallback($api_key, $payload, $is_composer ? 'Luna Composer' : 'Luna Chat', 60);
 }
 
 /* ============================================================

@@ -575,56 +575,65 @@ add_action('rest_api_init', function () {
         // Add current user message
         $messages[] = ['role' => 'user', 'content' => $prompt];
         
-        // Make request to OpenAI
-        $response = wp_remote_post('https://api.openai.com/v1/chat/completions', [
-          'timeout' => 30,
-          'headers' => [
-            'Authorization' => 'Bearer ' . $api_key,
-            'Content-Type' => 'application/json',
-          ],
-          'body' => wp_json_encode([
-            'model' => 'gpt-4o-mini',
-            'messages' => $messages,
-            'temperature' => 0.7,
-            'max_tokens' => 1000, // Increased to allow for more detailed, thoughtful responses
-            'stream' => false, // Disable streaming to return complete JSON response
-          ]),
-        ]);
-        
-        if (is_wp_error($response)) {
-          return new WP_REST_Response([
-            'answer' => 'Sorry, I encountered an error. Please try again.',
-            'error' => $response->get_error_message()
-          ], 500);
-        }
-        
-        $response_code = wp_remote_retrieve_response_code($response);
-        $response_body = wp_remote_retrieve_body($response);
-        
-        if ($response_code >= 400) {
-          return new WP_REST_Response([
-            'answer' => 'Sorry, I encountered an error processing your request.',
-            'error' => 'OpenAI API error: ' . $response_code
-          ], $response_code);
-        }
-        
-        $body = json_decode($response_body, true);
-        if (!is_array($body) || !isset($body['choices'][0]['message']['content'])) {
+        // Make request to OpenAI with GPT-5.1 primary and GPT-4o fallback
+        $models = ['gpt-5.1', 'gpt-4o'];
+        $answer = null;
+        $last_error = null;
+
+        foreach ($models as $model_index => $model) {
+          $response = wp_remote_post('https://api.openai.com/v1/chat/completions', [
+            'timeout' => 30,
+            'headers' => [
+              'Authorization' => 'Bearer ' . $api_key,
+              'Content-Type' => 'application/json',
+            ],
+            'body' => wp_json_encode([
+              'model' => $model,
+              'messages' => $messages,
+              'temperature' => 0.7,
+              'max_tokens' => 1000, // Increased to allow for more detailed, thoughtful responses
+              'stream' => false, // Disable streaming to return complete JSON response
+            ]),
+          ]);
+
+          if (is_wp_error($response)) {
+            $last_error = $response;
+            continue;
+          }
+
+          $response_code = wp_remote_retrieve_response_code($response);
+          $response_body = wp_remote_retrieve_body($response);
+
+          if ($response_code >= 400) {
+            $last_error = new WP_Error('openai_http_error', 'OpenAI API error: ' . $response_code);
+            continue;
+          }
+
+          $body = json_decode($response_body, true);
+          if (is_array($body) && isset($body['choices'][0]['message']['content'])) {
+            if ($model_index > 0) {
+              error_log('[Luna Chat] Fallback to ' . $model . ' succeeded.');
+            }
+            $answer = trim((string)$body['choices'][0]['message']['content']);
+            break;
+          }
+
           // Log the actual response for debugging
-          error_log('[Luna Chat] Invalid OpenAI response structure. Response code: ' . $response_code);
+          error_log('[Luna Chat] Invalid OpenAI response structure. Model: ' . $model);
           error_log('[Luna Chat] Response body (first 500 chars): ' . substr($response_body, 0, 500));
           if (is_array($body)) {
             error_log('[Luna Chat] Response keys: ' . implode(', ', array_keys($body)));
           }
-          
+          $last_error = new WP_Error('openai_invalid_response', 'Invalid response structure');
+        }
+
+        if ($answer === null) {
           return new WP_REST_Response([
-            'answer' => 'Sorry, I received an unexpected response format.',
-            'error' => 'Invalid response structure'
+            'answer' => 'Sorry, I encountered an error processing your request.',
+            'error' => $last_error ? $last_error->get_error_message() : 'Unknown error',
           ], 500);
         }
-        
-        $answer = trim((string)$body['choices'][0]['message']['content']);
-        
+
         // Log successful response for debugging (first 100 chars only)
         error_log('[Luna Chat] Successfully received response from OpenAI. Answer length: ' . strlen($answer));
         
